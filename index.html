@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Sifat Berdasarkan Tanggal Lahir</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url(https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/01/2024/06/21/white-bengal-tiger-nature_23-2151528361-3261950069.jpeg) no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .header {
+            background-color: #00A8E8;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            background-color: #00A8E8;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #007B9E;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #007B9E;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #007B9E;
+            animation: spin 1s ease infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+        }
+        .result h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .result p span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                width: 100%;
+            }
+            .header, .submit-btn {
+                padding: 15px;
+                font-size: 16px;
+            }
+            .form-group input {
+                padding: 10px;
+            }
+            .result, .loading {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            Cek Sifat Berdasarkan Tanggal Lahir
+        </div>
+        <form id="cekSifatForm">
+            <div class="form-group">
+                <label for="nama">Nama:</label>
+                <input type="text" id="nama" name="nama" required>
+            </div>
+            <div class="form-group">
+                <label for="tanggalLahir">Tanggal Lahir:</label>
+                <input type="date" id="tanggalLahir" name="tanggalLahir" required>
+            </div>
+            <button type="submit" class="submit-btn">Cek Sifat</button>
+        </form>
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            Memeriksa sifat Anda...
+        </div>
+        <div id="result" class="result">
+            <h2>Hasil Sifat Anda:</h2>
+            <p id="sifatResult"></p>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 Bendi.nr
+    </div>
+    <script>
+        const sifatList = {
+            "1": "Individu yang lahir pada tanggal {tanggal} memiliki karakteristik yang unik dan menarik. Mereka cenderung menjalani hidup dengan cara yang sangat pribadi dan tak tergoyahkan. Kepribadian mereka dapat digambarkan sebagai dominan dan tegas dalam pengambilan keputusan. Meskipun seringkali menjadi orang yang pendiam, mereka memiliki kemampuan untuk memimpin dan mempengaruhi orang lain dengan kemampuan kepemimpinan yang luar biasa. Selain itu, individu yang lahir pada tanggal {tanggal} seringkali mampu mengungkapkan pikiran dan ide-ide mereka dengan jelas. Mereka memiliki dorongan untuk berbicara tentang apa yang ada dalam pikiran mereka, yang dapat membuat mereka menjadi komunikator yang efektif. Dengan pemahaman yang lebih dalam tentang karakteristik ini, seseorang dapat menggunakan wawasan ini untuk mengembangkan potensi pribadi mereka dan berinteraksi dengan orang lain dengan lebih baik.",
+            "2": "Individu yang lahir pada tanggal {tanggal} seringkali memiliki watak yang khas. Mereka cenderung memiliki sifat yang perasa dan mudah tersinggung. Terkadang, mereka lebih memilih untuk menjalani hidup dengan menyendiri dan merasa nyaman dalam lingkungan rumah. Namun, mereka juga dikenal sebagai individu yang lembut dan ramah, sehingga banyak orang yang senang bergaul dengan mereka. Satu hal yang mungkin perlu diperhatikan adalah sikap pesimis dalam menghadapi masa depan. Orang-orang dengan tanggal kelahiran ini sering merasa pesimis dan cenderung menyerah sebelum mencoba. Oleh karena itu, penting untuk memiliki seseorang yang dapat memberikan dukungan dan dorongan kepada mereka untuk tidak terjebak dalam sikap pesimis tersebut. Dengan dukungan yang tepat, mereka dapat mengatasi hambatan dan mencapai potensi yang lebih besar dalam kehidupan mereka.",
+            "3": "Individu yang lahir pada tanggal {tanggal} sering dikenal sebagai individu yang sabar dan memiliki kendali diri yang baik. Mereka cenderung bijaksana dan bertanggung jawab, tetapi dapat marah hebat jika dipermainkan. Kejujuran dan sikap ramah adalah modal utama mereka dalam berinteraksi. Dalam cinta, mereka mungkin memiliki kompleksitas yang sulit dimengerti.",
+            "4": "Tanggal kelahiran {tanggal} seringkali mencirikan individu yang pandai, sosial, dan mudah berubah pendapat. Mereka cenderung tidak yakin dengan diri sendiri dan mungkin beralih antara berbagai pasangan. Sikap dingin terhadap orang lain mungkin terjadi karena mereka menganggap orang lain sebagai penyebab masalah. Namun, mereka juga memiliki sisi humor dan keanak-anakkan.",
+            "5": "Sifat individu yang lahir pada tanggal {tanggal} seringkali mencakup optimisme, ambisi, dan keinginan untuk berprestasi. Mereka dapat keras kepala dan sering mendapatkan apa yang diinginkan. Namun, mereka harus berhati-hati dengan kecenderungan untuk bersikap meremehkan orang lain dalam urusan cinta.",
+            "6": "Tanggal kelahiran {tanggal} sering mencirikan individu yang memiliki karakter tegas dan tidak mudah menyerah dalam menghadapi tantangan. Mereka dikenal sebagai individu yang berprinsip adil dan selalu menunjukkan kejujuran dalam tindakan dan perkataan mereka. Sifat-sifat ini membuat mereka disegani oleh banyak orang di sekitar mereka. Mereka memiliki kemampuan untuk membuat keputusan yang adil dan dapat diandalkan dalam situasi apapun. Namun, individu yang lahir pada tanggal-tanggal ini juga dapat memiliki harga diri yang tinggi. Mereka cenderung percaya pada kemampuan dan prinsip-prinsip mereka sendiri, sehingga kadang-kadang sulit bagi mereka untuk mengatasi penolakan atau kritik. Mereka mungkin merasa terlalu terluka jika ide atau tindakan mereka ditolak oleh orang lain.",
+            "7": "Sifat manusia yang lahir pada tanggal {tanggal} seringkali mencakup keterbukaan, kejujuran, dan kemungkinan mudah terpengaruh. Mereka mungkin mencari jalan pintas dan cenderung melihat cinta sebagai hiburan semata. Kehati-hatian dalam hubungan cinta adalah penting, karena mereka suka merayu dan mudah meninggalkan pasangan yang tidak setia.",
+            "8": "Tanggal kelahiran {tanggal} sering dianggap sebagai individu yang ramah dan mudah terpengaruh. Mereka dapat merasa rendah diri dan membutuhkan keseimbangan dalam hidup. Dalam urusan cinta, mereka mungkin setia dan rela berkorban. Walau begitu, orang yang lahir di tanggal segini akan memberikan segalanya ke orang yang mereka sayang.",
+            "9": "Orang yang lahir pada tanggal {tanggal} cenderung bekerja keras dan memiliki ambisi tinggi. Mereka bisa mudah tersinggung dalam interaksi sehari-hari, tetapi juga jujur dan tabah. Dalam cinta, mereka setia tetapi bisa cemburu. Mereka di tanggal-tanggal ini cenderung tidak suka jika harus kalah.",
+            "10": "Sifat manusia yang lahir pada tanggal {tanggal} sering mencakup dorongan untuk mendapatkan pengakuan dan perhatian. Mereka cenderung suka berpenampilan rapi dan berharap orang lain menganggap mereka sebagai juara. Dalam kehidupan sehari-hari, mereka bisa disegani karena kepemimpinan dan kebijaksanaan. Dalam cinta, mereka bisa menjadi sosok yang sulit dipahami.",
+            "11": "Tanggal kelahiran {tanggal} sering mencirikan individu yang kurang serius dan suka berperilaku ceroboh. Mereka tidak suka keributan dan berusaha memahami masalah dengan bijaksana. Dalam cinta, mereka mungkin tidak romantis tetapi penuh pengertian.",
+            "12": "Individu yang lahir pada tanggal {tanggal} seringkali sulit dimengerti. Mereka memiliki sifat merendahkan diri dan tidak suka menonjolkan diri. Mereka terkenal sebagai perayu dan dikenal sebagai seniman asmara."
+        };
+
+        function getSifat(tanggalLahir) {
+            const date = new Date(tanggalLahir);
+            const day = date.getDate();
+
+            if ([1, 10, 19, 28].includes(day)) {
+                return sifatList["1"].replace(/{tanggal}/g, day);
+            } else if ([2, 11, 30].includes(day)) {
+                return sifatList["2"].replace(/{tanggal}/g, day);
+            } else if ([3, 18, 29].includes(day)) {
+                return sifatList["3"].replace(/{tanggal}/g, day);
+            } else if ([4, 13].includes(day)) {
+                return sifatList["4"].replace(/{tanggal}/g, day);
+            } else if ([5, 17].includes(day)) {
+                return sifatList["5"].replace(/{tanggal}/g, day);
+            } else if ([6, 14, 27].includes(day)) {
+                return sifatList["6"].replace(/{tanggal}/g, day);
+            } else if ([7, 28, 31].includes(day)) {
+                return sifatList["7"].replace(/{tanggal}/g, day);
+            } else if ([8, 23].includes(day)) {
+                return sifatList["8"].replace(/{tanggal}/g, day);
+            } else if ([10, 16, 21].includes(day)) {
+                return sifatList["9"].replace(/{tanggal}/g, day);
+            } else if ([12, 19].includes(day)) {
+                return sifatList["10"].replace(/{tanggal}/g, day);
+            } else if ([15, 20, 26].includes(day)) {
+                return sifatList["11"].replace(/{tanggal}/g, day);
+            } else if ([22, 25].includes(day)) {
+                return sifatList["12"].replace(/{tanggal}/g, day);
+            } else {
+                return "Tanggal tidak valid.";
+            }
+        }
+
+        document.getElementById('cekSifatForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            setTimeout(function() {
+                const nama = document.getElementById('nama').value;
+                const tanggalLahir = document.getElementById('tanggalLahir').value;
+
+                const sifat = getSifat(tanggalLahir);
+
+                document.getElementById('sifatResult').innerHTML = `${nama}, sifat Anda adalah <span>${sifat}</span>.`;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+            }, 2000); // Simulate a 2 second loading time
+        });
+    </script>
+</body>
+</html>
